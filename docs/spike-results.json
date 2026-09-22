@@ -1,0 +1,220 @@
+[
+  {
+    "schema": "aoe2coach.spike.v1",
+    "source": {
+      "file": "de-63.0.aoe2record",
+      "sha256": "dc9650a158641fcf02a248b04a561c0b933d16b63edd2cae6144b641fd378e26"
+    },
+    "parser": {
+      "name": "mgz",
+      "package_version": "1.8.51",
+      "version": "DE",
+      "game_version": "VER 9.4",
+      "save_version": 63.0,
+      "log_version": 5
+    },
+    "status": "partial",
+    "warnings": [
+      "Action timestamps describe commands, not completion of training/research/building.",
+      "Reaching the file boundary does not prove the recorded match finished.",
+      "223 actions could not be decoded by mgz."
+    ],
+    "operation_counts": {
+      "SYNC": 85823,
+      "VIEWLOCK": 85823,
+      "CHAT": 12,
+      "ACTION": 2337,
+      "POSTGAME": 1
+    },
+    "action_counts": {
+      "GAME": 8,
+      "DE_TRANSFORM": 11,
+      "ERROR": 223,
+      "BUILD": 141,
+      "RESEARCH": 27,
+      "MOVE": 1342,
+      "DE_AUTOSCOUT": 7,
+      "ORDER": 369,
+      "GATHER_POINT": 149,
+      "DELETE": 8,
+      "SPECIAL": 32,
+      "UNGARRISON": 2,
+      "BACK_TO_WORK": 5,
+      "FLARE": 5,
+      "PATROL": 2,
+      "GUARD": 1,
+      "STANCE": 1,
+      "DE_ATTACK_MOVE": 2,
+      "RESIGN": 2
+    },
+    "last_time_ms": 1408873,
+    "match": {
+      "map": "Arena",
+      "speed": "Standard",
+      "duration_seconds": 1408.873,
+      "players": [
+        {
+          "id": 1,
+          "name": "Original AI",
+          "civilization": "Maya"
+        },
+        {
+          "id": 2,
+          "name": "Excel",
+          "civilization": "Aztecs"
+        },
+        {
+          "id": 3,
+          "name": "ButtonBash",
+          "civilization": "Spanish"
+        },
+        {
+          "id": 4,
+          "name": "Waffles",
+          "civilization": "Goths"
+        }
+      ]
+    }
+  },
+  {
+    "schema": "aoe2coach.spike.v1",
+    "source": {
+      "file": "de-66.3.aoe2record",
+      "sha256": "ce0b3429f14a8a3eb2de5696dc9db4a21e9a9ebd9f6141db6506e90a2638c5f4"
+    },
+    "parser": {
+      "name": "mgz",
+      "package_version": "1.8.51",
+      "version": "DE",
+      "game_version": "VER 9.4",
+      "save_version": 66.3,
+      "log_version": 5
+    },
+    "status": "ok",
+    "warnings": [
+      "Action timestamps describe commands, not completion of training/research/building.",
+      "Reaching the file boundary does not prove the recorded match finished."
+    ],
+    "operation_counts": {
+      "SYNC": 198458,
+      "VIEWLOCK": 198458,
+      "CHAT": 8,
+      "ACTION": 9695,
+      "POSTGAME": 1
+    },
+    "action_counts": {
+      "GAME": 3,
+      "DE_TRANSFORM": 91,
+      "DE_QUEUE": 710,
+      "MOVE": 3141,
+      "BUILD": 378,
+      "STANCE": 973,
+      "ORDER": 1098,
+      "GATHER_POINT": 556,
+      "DE_107_A": 29,
+      "UNGARRISON": 97,
+      "SPECIAL": 146,
+      "BACK_TO_WORK": 34,
+      "STOP": 43,
+      "DE_MULTI_GATHERPOINT": 12,
+      "WALL": 19,
+      "RESEARCH": 82,
+      "PATROL": 99,
+      "FORMATION": 2070,
+      "DELETE": 41,
+      "DE_ATTACK_MOVE": 19,
+      "ATTACK_GROUND": 8,
+      "REPAIR": 11,
+      "DE_107_B": 6,
+      "SELL": 18,
+      "BUY": 9,
+      "GUARD": 1,
+      "RESIGN": 1
+    },
+    "last_time_ms": 2875892,
+    "match": {
+      "map": "Arabia",
+      "speed": "Standard",
+      "duration_seconds": 2875.892,
+      "players": [
+        {
+          "id": 1,
+          "name": "TAG_Sora Kuma",
+          "civilization": "Malay"
+        },
+        {
+          "id": 2,
+          "name": "GL.Hera",
+          "civilization": "Khmer"
+        }
+      ]
+    }
+  },
+  {
+    "schema": "aoe2coach.spike.v1",
+    "source": {
+      "file": "de-66.6.aoe2record",
+      "sha256": "dc1a630ea33b197703f70fab0386b476d02b5bdd43916ec012f971ef580d3985"
+    },
+    "parser": {
+      "name": "mgz",
+      "package_version": "1.8.51",
+      "version": "DE",
+      "game_version": "VER 9.4",
+      "save_version": 66.6,
+      "log_version": 5
+    },
+    "status": "ok",
+    "warnings": [
+      "Action timestamps describe commands, not completion of training/research/building.",
+      "Reaching the file boundary does not prove the recorded match finished."
+    ],
+    "operation_counts": {
+      "SYNC": 162366,
+      "VIEWLOCK": 162366,
+      "ACTION": 3333,
+      "CHAT": 6,
+      "POSTGAME": 1
+    },
+    "action_counts": {
+      "GAME": 4,
+      "DE_QUEUE": 309,
+      "MOVE": 1401,
+      "BUILD": 135,
+      "ORDER": 615,
+      "GATHER_POINT": 290,
+      "STANCE": 151,
+      "PATROL": 27,
+      "SPECIAL": 161,
+      "UNGARRISON": 84,
+      "RESEARCH": 43,
+      "WALL": 20,
+      "DELETE": 22,
+      "BACK_TO_WORK": 7,
+      "FORMATION": 3,
+      "SELL": 31,
+      "BUY": 25,
+      "FOLLOW": 1,
+      "STOP": 3,
+      "RESIGN": 1
+    },
+    "last_time_ms": 2220129,
+    "match": {
+      "map": "Arena",
+      "speed": "Standard",
+      "duration_seconds": 2220.129,
+      "players": [
+        {
+          "id": 1,
+          "name": "_LY_抖音肥龙",
+          "civilization": "Burgundians"
+        },
+        {
+          "id": 2,
+          "name": "YT Jian Hei live",
+          "civilization": "Turks"
+        }
+      ]
+    }
+  }
+]

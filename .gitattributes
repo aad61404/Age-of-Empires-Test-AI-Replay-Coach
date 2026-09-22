@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.aoe2record binary
+*.mgz binary
+*.mgx binary

@@ -1,5 +1,10 @@
 # AoE2 Replay Intelligence Pipeline — V1 Implementation Plan
 
+## 實作進度（2026-09-18）
+
+M0、M1-prep 與 M1 初版 normalized parse CLI 已完成；以三份官方樣本驗證。實際 schema 以 backend/src/aoe2coach/parser/models.py 為準，備援 parser 與獨立版本路由尚未實作。結果見 [驗證報告](docs/parser-spike.md)。
+下文為原始設計草案；事件與指標語意以實測結果修訂後才能定稿。
+
 ## 核心定義
 
 ```
@@ -162,7 +167,7 @@ Age-of-Empires-Test-AI-Replay-Coach/
 └── README.md
 ```
 
-#### [NEW] [pyproject.toml](file:///c:/Work/Age-of-Empires-Test-AI-Replay-Coach/backend/pyproject.toml)
+#### [NEW] [pyproject.toml](backend/pyproject.toml)
 
 ```toml
 [project]
@@ -190,7 +195,7 @@ ai = [
 aoe2coach = "aoe2coach.cli.main:app"
 ```
 
-#### [NEW] [Makefile](file:///c:/Work/Age-of-Empires-Test-AI-Replay-Coach/Makefile)
+#### [NEW] [Makefile](Makefile)
 
 ```makefile
 install:
@@ -216,7 +221,7 @@ parse:
 
 **Deliverable：一個真實 .aoe2record → Python CLI → JSON**
 
-#### [NEW] [models.py](file:///c:/Work/Age-of-Empires-Test-AI-Replay-Coach/backend/src/aoe2coach/parser/models.py)
+#### [NEW] [models.py](backend/src/aoe2coach/parser/models.py)
 
 ```python
 from enum import Enum
@@ -273,7 +278,7 @@ class ParsedReplay(BaseModel):
 > 讓下游消費者知道資料來源和可靠性。當 AoE2 patch 導致 parser 失效時，這個 metadata 可以用來
 > 判斷哪些已解析的資料需要重新處理。
 
-#### [NEW] [protocol.py](file:///c:/Work/Age-of-Empires-Test-AI-Replay-Coach/backend/src/aoe2coach/parser/protocol.py) — Parser Protocol
+#### [NEW] [protocol.py](backend/src/aoe2coach/parser/protocol.py) — Parser Protocol
 
 ```python
 from typing import Protocol
@@ -292,7 +297,7 @@ class ReplayParser(Protocol):
     def can_parse(self, file_path: Path) -> bool: ...
 ```
 
-#### [NEW] [version_detector.py](file:///c:/Work/Age-of-Empires-Test-AI-Replay-Coach/backend/src/aoe2coach/parser/version_detector.py)
+#### [NEW] [version_detector.py](backend/src/aoe2coach/parser/version_detector.py)
 
 ```python
 class ReplayVersion(BaseModel):
@@ -309,7 +314,7 @@ class VersionDetector:
     def detect(self, file_path: Path) -> ReplayVersion: ...
 ```
 
-#### [NEW] [aoc_mgz.py](file:///c:/Work/Age-of-Empires-Test-AI-Replay-Coach/backend/src/aoe2coach/parser/adapters/aoc_mgz.py) — Primary Adapter
+#### [NEW] [aoc_mgz.py](backend/src/aoe2coach/parser/adapters/aoc_mgz.py) — Primary Adapter
 
 使用 `mgz` 的兩層策略：
 1. `mgz.fast.header.parse()` → metadata（Players, Map, Civ, Settings）
@@ -360,11 +365,10 @@ class AocMgzAdapter:
 ```
 
 > [!WARNING]
-> **Game Time 計算**：SYNC operation 推進遊戲時鐘。時間單位需根據 game speed 轉換。
-> AoE2 DE "Normal" = 1.0x, "Fast" = 1.5x, "Very Fast" = 2.0x。
-> V1 先以遊戲內顯示時間為準，不做 real-time 轉換。
+> **Game Time 計算（實測修正）**：目前 mgz 的 SYNC payload[0] 為遊戲毫秒增量。
+> 累加後除以 1000 得遊戲秒數，不再乘除 game speed；恢復存檔需加入 restore_time。
 
-#### [NEW] [main.py](file:///c:/Work/Age-of-Empires-Test-AI-Replay-Coach/backend/src/aoe2coach/cli/main.py) — CLI
+#### [NEW] [main.py](backend/src/aoe2coach/cli/main.py) — CLI
 
 ```bash
 # Milestone 1: Parse
@@ -417,7 +421,7 @@ aoe2coach coach replay_a.aoe2record --vs replay_b.aoe2record --player 1
 
 ### Milestone 1.1：Timeline
 
-#### [NEW] [timeline.py](file:///c:/Work/Age-of-Empires-Test-AI-Replay-Coach/backend/src/aoe2coach/analyzer/timeline.py)
+#### [NEW] [timeline.py](backend/src/aoe2coach/analyzer/timeline.py)
 
 從 `ParsedReplay` 中按 player 和 event type 組織時間線。
 
@@ -442,7 +446,7 @@ class TimelineExtractor:
 
 ### Milestone 1.2：Deterministic Metrics
 
-#### [NEW] [metrics.py](file:///c:/Work/Age-of-Empires-Test-AI-Replay-Coach/backend/src/aoe2coach/analyzer/metrics.py)
+#### [NEW] [metrics.py](backend/src/aoe2coach/analyzer/metrics.py)
 
 從 `PlayerTimeline` 計算確定性指標。
 
@@ -495,7 +499,7 @@ class MetricsCalculator:
 
 ### Milestone 1.3：Strategy Diff
 
-#### [NEW] [diff.py](file:///c:/Work/Age-of-Empires-Test-AI-Replay-Coach/backend/src/aoe2coach/analyzer/diff.py)
+#### [NEW] [diff.py](backend/src/aoe2coach/analyzer/diff.py)
 
 ```python
 class MetricDelta(BaseModel):
@@ -563,7 +567,7 @@ class StrategyDiff:
 
 ### Milestone 1.4：LLM Explanation
 
-#### [NEW] [ai/protocol.py](file:///c:/Work/Age-of-Empires-Test-AI-Replay-Coach/backend/src/aoe2coach/ai/protocol.py)
+#### [NEW] [ai/protocol.py](backend/src/aoe2coach/ai/protocol.py)
 
 ```python
 class CoachProvider(Protocol):
@@ -575,7 +579,7 @@ class CoachProvider(Protocol):
     async def explain(self, diff: DiffResult, context: MatchContext) -> CoachingReport: ...
 ```
 
-#### [NEW] [ai/coach.py](file:///c:/Work/Age-of-Empires-Test-AI-Replay-Coach/backend/src/aoe2coach/ai/coach.py)
+#### [NEW] [ai/coach.py](backend/src/aoe2coach/ai/coach.py)
 
 **三層 input 結構（不在 prompt 裡硬塞 domain knowledge）：**
 

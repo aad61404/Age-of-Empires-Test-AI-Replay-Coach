@@ -1,0 +1,17 @@
+[
+  {
+    "file": "de-63.0.aoe2record",
+    "url": "https://raw.githubusercontent.com/happyleavesaoc/aoc-mgz/9c1e9cc93998887a56f336dc4489555f4ad5577a/tests/recs/de-63.0.aoe2record",
+    "sha256": "dc9650a158641fcf02a248b04a561c0b933d16b63edd2cae6144b641fd378e26"
+  },
+  {
+    "file": "de-66.3.aoe2record",
+    "url": "https://raw.githubusercontent.com/happyleavesaoc/aoc-mgz/9c1e9cc93998887a56f336dc4489555f4ad5577a/tests/recs/de-66.3.aoe2record",
+    "sha256": "ce0b3429f14a8a3eb2de5696dc9db4a21e9a9ebd9f6141db6506e90a2638c5f4"
+  },
+  {
+    "file": "de-66.6.aoe2record",
+    "url": "https://raw.githubusercontent.com/happyleavesaoc/aoc-mgz/9c1e9cc93998887a56f336dc4489555f4ad5577a/tests/recs/de-66.6.aoe2record",
+    "sha256": "dc1a630ea33b197703f70fab0386b476d02b5bdd43916ec012f971ef580d3985"
+  }
+]

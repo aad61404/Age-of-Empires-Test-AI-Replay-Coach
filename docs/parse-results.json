@@ -1,0 +1,23 @@
+[
+  {
+    "file": "de-63.0.aoe2record",
+    "status": "partial",
+    "exit_code": 1,
+    "events": 2349,
+    "bytes": 800075
+  },
+  {
+    "file": "de-66.3.aoe2record",
+    "status": "ok",
+    "exit_code": 0,
+    "events": 9703,
+    "bytes": 3757208
+  },
+  {
+    "file": "de-66.6.aoe2record",
+    "status": "ok",
+    "exit_code": 0,
+    "events": 3339,
+    "bytes": 1262082
+  }
+]
