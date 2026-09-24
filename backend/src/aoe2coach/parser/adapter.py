@@ -45,6 +45,7 @@ def normalize(report: dict[str, Any]) -> ParsedReplay:
                     "raw_type": raw_type,
                     "player_id": fields.get("player_id"),
                     "entity_id": entity_id,
+                    "entity_name": row.get("entity_name"),
                     "payload": payload,
                 }
             )

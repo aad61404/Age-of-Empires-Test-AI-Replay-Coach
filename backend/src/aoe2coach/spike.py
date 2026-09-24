@@ -9,7 +9,7 @@ from typing import Any
 
 from mgz import fast  # type: ignore[import-untyped]
 from mgz.fast.header import parse as parse_header  # type: ignore[import-untyped]
-from mgz.model import parse_match  # type: ignore[import-untyped]
+from mgz.model import get_dataset, parse_match  # type: ignore[import-untyped]
 
 
 def json_value(value: Any) -> Any:
@@ -50,6 +50,13 @@ def inspect_replay(path: Path, *, include_all_operations: bool = True) -> dict[s
                     for k in ("version", "game_version", "save_version", "log_version")
                 }
             )
+            dataset = None
+            try:
+                dataset_id, dataset = get_dataset(header["version"], header["mod"])
+                report["parser"]["dataset_id"] = dataset_id
+                report["parser"]["reference_version"] = version("aocref")
+            except Exception as exc:
+                report["warnings"].append(f"Entity names unavailable: {exc}")
             time_ms = header["map"]["restore_time"]
             fast.meta(handle)
             size = path.stat().st_size
@@ -67,6 +74,16 @@ def inspect_replay(path: Path, *, include_all_operations: bool = True) -> dict[s
                 counts[op.name] += 1
                 if op == fast.Operation.ACTION:
                     actions[payload[0].name] += 1
+                    if dataset is not None:
+                        fields = payload[1]
+                        for key, table in (
+                            ("building_id", "objects"),
+                            ("unit_id", "objects"),
+                            ("technology_id", "technologies"),
+                        ):
+                            if key in fields:
+                                row["entity_name"] = dataset[table].get(str(fields[key]))
+                                break
                 if include_all_operations or op in (fast.Operation.ACTION, fast.Operation.CHAT):
                     report["operations"].append(row)
             report["status"] = "ok"

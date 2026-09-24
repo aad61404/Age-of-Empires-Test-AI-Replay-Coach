@@ -4,10 +4,11 @@ import json
 import platform
 from importlib.metadata import version
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 import typer
 
+from aoe2coach.analyzer.timeline import extract_timeline, render_text
 from aoe2coach.parser.adapter import AocMgzAdapter
 from aoe2coach.spike import inspect_replay
 
@@ -69,6 +70,31 @@ def parse(
             typer.echo(f"{result.status}: {output}", err=True)
     except OSError as exc:
         typer.echo(f"File error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    if result.status != "ok":
+        raise typer.Exit(1)
+
+
+@app.command()
+def timeline(
+    replay: Annotated[Path, typer.Argument(exists=True, dir_okay=False, readable=True)],
+    player: Annotated[int, typer.Option("--player", min=1)],
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+    format: Annotated[Literal["json", "text"], typer.Option("--format")] = "json",
+) -> None:
+    """Extract one player's command timeline; partial results exit with code 1."""
+    if output is not None and output.resolve() == replay.resolve():
+        raise typer.BadParameter("Output must not overwrite the input replay.")
+    try:
+        result = extract_timeline(AocMgzAdapter().parse(replay), player)
+        encoded = result.model_dump_json(indent=2) if format == "json" else render_text(result)
+        if output is None:
+            typer.echo(encoded)
+        else:
+            output.write_text(encoded + "\n", encoding="utf-8")
+            typer.echo(f"{result.status}: {output}", err=True)
+    except (OSError, ValueError) as exc:
+        typer.echo(f"Timeline error: {exc}", err=True)
         raise typer.Exit(1) from exc
     if result.status != "ok":
         raise typer.Exit(1)

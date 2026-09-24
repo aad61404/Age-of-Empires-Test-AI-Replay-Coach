@@ -16,6 +16,8 @@ class ParserMeta(Model):
     game_version: str | None = None
     save_version: float | None = None
     log_version: int | None = None
+    dataset_id: int | None = None
+    reference_version: str | None = None
 
 
 class Source(Model):
@@ -60,6 +62,7 @@ class Event(Model):
     raw_type: str
     player_id: int | None = None
     entity_id: int | None = None
+    entity_name: str | None = None
     payload: JsonValue
 
 
