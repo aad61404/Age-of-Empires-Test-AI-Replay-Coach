@@ -4,7 +4,8 @@ AoE2 replay 分析工具。V1 規劃為 Python CLI：解析 replay、時間線�
 
 ## 目前狀態
 
-M0 開發環境、M1-prep 解析驗證與 M1 初版 normalized parser 已建置。提供 `doctor`、`spike`、`parse`、`timeline`；指標、比較與 AI 功能尚未實作。
+M0 開發環境、M1-prep 解析驗證、M1 normalized parser 與 M1.1 timeline 已建置。
+另提供 replay collector 與 M1.2 初版 command metrics；比較與 AI 功能尚未實作。
 完整設計見 [PLAN.MD](PLAN.MD)。
 
 ## macOS 快速開始
@@ -56,6 +57,20 @@ uv run --locked aoe2coach spike ../replays/de-66.6.aoe2record -o ../replays/de-6
 樣本不提交 Git；來源與 SHA-256 記錄於 [replay-sources.json](docs/replay-sources.json)。
 在新環境可依該檔的 URL 下載樣本至 `replays/`。
 
+### 收集近期天梯 Replay
+
+從 AoE2 Insights、AoE2 Companion 或官方對戰資料取得 `gameId` 和其中一位玩家的
+`profileId`，即可嘗試從 Microsoft／World's Edge 的暫存端點下載：
+
+```sh
+cd backend
+uv run --locked aoe2coach collect 156900198 2858362
+```
+
+預設寫入 `replays/`，自動處理 ZIP、計算 SHA-256 並更新 `replays/manifest.json`。
+可用 `-d` 指定其他目錄。官方不保證每場 replay 都存在，舊檔也可能已被清除；下載失敗
+不會建立 manifest 項目。Replay 與本機 manifest 均由 `.gitignore` 排除。
+
 ## 開發指令
 
 - `make install`：依 lockfile 安裝依賴與開發工具。
@@ -98,6 +113,17 @@ uv run --locked aoe2coach timeline ../replays/de-66.6.aoe2record --player 1 --fo
 無玩家 ID 的事件不推測歸屬，輸出其總數與警告。partial 輸出保留退出碼 1。
 無效玩家、failed 解析或缺少玩家資訊時回報錯誤，不產生誤導時間線。
 已加入建築／單位／科技名稱對照；軍事單位分類與升級完成事件尚未加入。
+
+## 玩家指令指標（M1.2 初版）
+
+```sh
+cd backend
+uv run --locked aoe2coach metrics ../replays/de-66.6.aoe2record --player 1
+```
+
+輸出 raw APM、時代研究指令、軍營／馬廄／靶場建造指令與首次排隊指令時間。
+APM 計入已解碼且歸屬該玩家的命令，排除聊天、投降與解碼失敗；它不是 eAPM。
+所有 timing 都是下令時間，不代表建造、生產或研究完成時間。
 
 ## 本機網頁 Demo
 

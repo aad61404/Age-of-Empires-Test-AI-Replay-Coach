@@ -1,4 +1,4 @@
-# 專案現況（2026-09-22）
+# 專案現況（2026-09-24）
 
 ## 已完成
 
@@ -6,18 +6,20 @@
 - CI 已設定 macOS / Linux / Windows；尚未確認遠端執行結果。
 - M1-prep：spike 指令及三份官方錄影驗證、來源 URL 與 SHA-256。
 - M1 初版：Pydantic schema、ReplayParser Protocol、mgz adapter、parse CLI。
+- Replay collector：以 game/profile ID 下載官方暫存 Replay、解 ZIP、雜湊與本機 manifest。
+- M1.2 初版：保守的 command timing 與 raw APM；不推測完成時間或 eAPM。
 - JSON 保留指令毫秒時間、原始 payload、來源與版本，以及 ok / partial / failed 狀態。
 
 ## 本次盤點驗證
 
-`make install check doctor` 全部通過；14 項測試通過；涵蓋名稱查表、未知 ID 與資料集選擇。
+`ruff`、格式、strict mypy 與 pytest 全部通過；21 項測試通過，總覆蓋率 87%。
 三份真實錄影的先前驗證為 2 份 ok、1 份 partial，詳見 parse-results.json。
 本次未重新執行三份錄影解析。
 
 ## 尚未完成
 
 1. M1.1 初版 timeline 已完成：玩家篩選、排序、JSON／文字輸出、完整度與未知歸屬警告；名稱對照已加入，細部分類待補。
-2. M1.2 指標與 APM 計數政策。
+2. M1.2 後續：軍事單位分類與更多可可靠計算的指標。
 3. M1.3 兩場 Replay 比較。
 4. M1.4 LLM 解釋。
 

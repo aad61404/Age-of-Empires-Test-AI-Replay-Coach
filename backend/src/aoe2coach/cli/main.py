@@ -8,7 +8,9 @@ from typing import Annotated, Literal
 
 import typer
 
+from aoe2coach.analyzer.metrics import calculate_metrics
 from aoe2coach.analyzer.timeline import extract_timeline, render_text
+from aoe2coach.collector import CollectionError, collect_replay
 from aoe2coach.parser.adapter import AocMgzAdapter
 from aoe2coach.spike import inspect_replay
 
@@ -27,6 +29,21 @@ def doctor() -> None:
     for package in ("aoe2coach", "mgz", "pydantic", "typer"):
         typer.echo(f"{package}: {version(package)}")
     typer.echo("Environment ready. Use spike to inspect a replay.")
+
+
+@app.command()
+def collect(
+    game_id: Annotated[int, typer.Argument(min=1)],
+    profile_id: Annotated[int, typer.Argument(min=1)],
+    destination: Annotated[Path, typer.Option("--destination", "-d")] = Path("../replays"),
+) -> None:
+    """Download a hosted multiplayer replay and update its local manifest."""
+    try:
+        entry = collect_replay(game_id, profile_id, destination)
+    except (CollectionError, OSError) as exc:
+        typer.echo(f"Collection error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    typer.echo(json.dumps(entry, ensure_ascii=False, indent=2))
 
 
 @app.command()
@@ -95,6 +112,31 @@ def timeline(
             typer.echo(f"{result.status}: {output}", err=True)
     except (OSError, ValueError) as exc:
         typer.echo(f"Timeline error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    if result.status != "ok":
+        raise typer.Exit(1)
+
+
+@app.command()
+def metrics(
+    replay: Annotated[Path, typer.Argument(exists=True, dir_okay=False, readable=True)],
+    player: Annotated[int, typer.Option("--player", min=1)],
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+) -> None:
+    """Calculate one player's command timings and raw APM."""
+    if output is not None and output.resolve() == replay.resolve():
+        raise typer.BadParameter("Output must not overwrite the input replay.")
+    try:
+        timeline_result = extract_timeline(AocMgzAdapter().parse(replay), player)
+        result = calculate_metrics(timeline_result)
+        encoded = result.model_dump_json(indent=2)
+        if output is None:
+            typer.echo(encoded)
+        else:
+            output.write_text(encoded + "\n", encoding="utf-8")
+            typer.echo(f"{result.status}: {output}", err=True)
+    except (OSError, ValueError) as exc:
+        typer.echo(f"Metrics error: {exc}", err=True)
         raise typer.Exit(1) from exc
     if result.status != "ok":
         raise typer.Exit(1)
