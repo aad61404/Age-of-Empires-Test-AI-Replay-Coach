@@ -2,10 +2,10 @@
 import sys
 from pathlib import Path
 
-from aoe2coach.parser.adapter import AocMgzAdapter
+from aoe2coach.parser.adapter import parse_replay
 
 root = Path(__file__).resolve().parents[1]
-replay = AocMgzAdapter().parse(Path(sys.argv[1]))
+replay = parse_replay(Path(sys.argv[1]))
 if replay.match is None:
     raise SystemExit("Replay metadata unavailable")
 (root / "demo" / "replay.json").write_text(replay.model_dump_json(), encoding="utf-8")

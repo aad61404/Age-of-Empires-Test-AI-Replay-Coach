@@ -7,7 +7,7 @@ name = "aoe2coach"
 version = "0.1.0"
 description = "AoE2 replay intelligence CLI"
 requires-python = ">=3.12,<3.13"
-dependencies = ["mgz>=1.8", "pydantic>=2", "typer>=0.12"]
+dependencies = ["mgz>=1.8", "aoe2rec-py>=0.1.22", "aocref>=2.0.42", "pydantic>=2", "typer>=0.12"]
 
 [dependency-groups]
 dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.5", "mypy>=1.10"]

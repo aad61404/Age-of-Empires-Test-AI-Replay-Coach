@@ -73,7 +73,7 @@ def test_zero_duration_has_no_apm() -> None:
 def test_cli_preserves_partial_status(tmp_path: Path) -> None:
     replay = tmp_path / "test.aoe2record"
     replay.write_bytes(b"fixture")
-    with patch("aoe2coach.cli.main.AocMgzAdapter.parse", return_value=sample(status="partial")):
+    with patch("aoe2coach.cli.main.parse_replay", return_value=sample(status="partial")):
         result = CliRunner().invoke(app, ["metrics", str(replay), "--player", "1"])
     assert result.exit_code == 1
     assert '"schema_version": "aoe2coach.metrics.v1"' in result.stdout

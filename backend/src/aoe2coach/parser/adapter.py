@@ -61,3 +61,13 @@ def normalize(report: dict[str, Any]) -> ParsedReplay:
 class AocMgzAdapter:
     def parse(self, path: Path) -> ParsedReplay:
         return normalize(inspect_replay(path, include_all_operations=False))
+
+
+def parse_replay(path: Path) -> ParsedReplay:
+    """Try mgz first; fall back to aoe2rec-py for game versions mgz cannot parse yet."""
+    result = AocMgzAdapter().parse(path)
+    if result.status != "failed":
+        return result
+    from aoe2coach.parser.aoe2rec_adapter import AoE2RecAdapter
+
+    return AoE2RecAdapter().parse(path)

@@ -77,7 +77,7 @@ def test_unusable_input(case: str) -> None:
 def test_cli_partial_output(tmp_path: Path) -> None:
     path = tmp_path / "test.aoe2record"
     path.write_bytes(b"fixture")
-    with patch("aoe2coach.cli.main.AocMgzAdapter.parse", return_value=sample()):
+    with patch("aoe2coach.cli.main.parse_replay", return_value=sample()):
         result = CliRunner().invoke(app, ["timeline", str(path), "--player", "1"])
     assert result.exit_code == 1
     assert '"schema_version": "aoe2coach.timeline.v1"' in result.stdout

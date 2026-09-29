@@ -11,7 +11,7 @@ import typer
 from aoe2coach.analyzer.metrics import calculate_metrics
 from aoe2coach.analyzer.timeline import extract_timeline, render_text
 from aoe2coach.collector import CollectionError, collect_replay
-from aoe2coach.parser.adapter import AocMgzAdapter
+from aoe2coach.parser.adapter import parse_replay
 from aoe2coach.spike import inspect_replay
 
 app = typer.Typer(help="AoE2 Replay Coach — development foundation.")
@@ -26,7 +26,7 @@ def main() -> None:
 def doctor() -> None:
     """Report the Python runtime and installed pipeline dependencies."""
     typer.echo(f"Python: {platform.python_version()} ({platform.machine()})")
-    for package in ("aoe2coach", "mgz", "pydantic", "typer"):
+    for package in ("aoe2coach", "mgz", "aoe2rec-py", "pydantic", "typer"):
         typer.echo(f"{package}: {version(package)}")
     typer.echo("Environment ready. Use spike to inspect a replay.")
 
@@ -78,7 +78,7 @@ def parse(
     if output is not None and output.resolve() == replay.resolve():
         raise typer.BadParameter("Output must not overwrite the input replay.")
     try:
-        result = AocMgzAdapter().parse(replay)
+        result = parse_replay(replay)
         encoded = result.model_dump_json(indent=2)
         if output is None:
             typer.echo(encoded)
@@ -103,7 +103,7 @@ def timeline(
     if output is not None and output.resolve() == replay.resolve():
         raise typer.BadParameter("Output must not overwrite the input replay.")
     try:
-        result = extract_timeline(AocMgzAdapter().parse(replay), player)
+        result = extract_timeline(parse_replay(replay), player)
         encoded = result.model_dump_json(indent=2) if format == "json" else render_text(result)
         if output is None:
             typer.echo(encoded)
@@ -127,7 +127,7 @@ def metrics(
     if output is not None and output.resolve() == replay.resolve():
         raise typer.BadParameter("Output must not overwrite the input replay.")
     try:
-        timeline_result = extract_timeline(AocMgzAdapter().parse(replay), player)
+        timeline_result = extract_timeline(parse_replay(replay), player)
         result = calculate_metrics(timeline_result)
         encoded = result.model_dump_json(indent=2)
         if output is None:
