@@ -8,13 +8,16 @@ from typing import Annotated, Literal
 
 import typer
 
+from aoe2coach.ai.coach import RuleBasedCoachProvider
+from aoe2coach.analyzer.diff import compare_metrics
 from aoe2coach.analyzer.metrics import calculate_metrics
 from aoe2coach.analyzer.timeline import extract_timeline, render_text
+from aoe2coach.audit import audit_corpus
 from aoe2coach.collector import CollectionError, collect_replay
 from aoe2coach.parser.adapter import parse_replay
 from aoe2coach.spike import inspect_replay
 
-app = typer.Typer(help="AoE2 Replay Coach — development foundation.")
+app = typer.Typer(help="AoE2 Replay Coach - replay intelligence pipeline.")
 
 
 @app.callback()
@@ -44,6 +47,28 @@ def collect(
         typer.echo(f"Collection error: {exc}", err=True)
         raise typer.Exit(1) from exc
     typer.echo(json.dumps(entry, ensure_ascii=False, indent=2))
+
+
+@app.command()
+def audit(
+    directory: Annotated[Path, typer.Argument(exists=True, file_okay=False, readable=True)],
+    recursive: Annotated[bool, typer.Option("--recursive", "-r")] = False,
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+) -> None:
+    """Audit parser compatibility across a replay directory."""
+    try:
+        result = audit_corpus(directory, recursive=recursive)
+        encoded = result.model_dump_json(indent=2)
+        if output is None:
+            typer.echo(encoded)
+        else:
+            output.write_text(encoded + "\n", encoding="utf-8")
+            typer.echo(f"audited {result.total}: {output}", err=True)
+    except (OSError, ValueError) as exc:
+        typer.echo(f"Audit error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    if result.partial or result.failed:
+        raise typer.Exit(1)
 
 
 @app.command()
@@ -139,6 +164,77 @@ def metrics(
         typer.echo(f"Metrics error: {exc}", err=True)
         raise typer.Exit(1) from exc
     if result.status != "ok":
+        raise typer.Exit(1)
+
+
+@app.command("diff")
+def diff_replays(
+    replay_a: Annotated[Path, typer.Argument(exists=True, dir_okay=False, readable=True)],
+    replay_b: Annotated[Path, typer.Argument(exists=True, dir_okay=False, readable=True)],
+    player: Annotated[int, typer.Option("--player", min=1)],
+    player_b: Annotated[int | None, typer.Option("--player-b", min=1)] = None,
+    threshold_seconds: Annotated[int, typer.Option("--threshold-seconds", min=0)] = 30,
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+) -> None:
+    """Compare two players' command metrics without inferring causality."""
+    if output is not None and output.resolve() in (replay_a.resolve(), replay_b.resolve()):
+        raise typer.BadParameter("Output must not overwrite an input replay.")
+    try:
+        metrics_a = calculate_metrics(extract_timeline(parse_replay(replay_a), player))
+        metrics_b = calculate_metrics(
+            extract_timeline(parse_replay(replay_b), player_b if player_b is not None else player)
+        )
+        result = compare_metrics(
+            metrics_a,
+            metrics_b,
+            significance_threshold_ms=threshold_seconds * 1000,
+        )
+        encoded = result.model_dump_json(indent=2)
+        if output is None:
+            typer.echo(encoded)
+        else:
+            output.write_text(encoded + "\n", encoding="utf-8")
+            typer.echo(f"{result.status}: {output}", err=True)
+    except (OSError, ValueError) as exc:
+        typer.echo(f"Diff error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    if result.status != "ok":
+        raise typer.Exit(1)
+
+
+@app.command()
+def coach(
+    replay_a: Annotated[Path, typer.Argument(exists=True, dir_okay=False, readable=True)],
+    replay_b: Annotated[Path, typer.Argument(exists=True, dir_okay=False, readable=True)],
+    player: Annotated[int, typer.Option("--player", min=1)],
+    player_b: Annotated[int | None, typer.Option("--player-b", min=1)] = None,
+    threshold_seconds: Annotated[int, typer.Option("--threshold-seconds", min=0)] = 30,
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+) -> None:
+    """Create an evidence-grounded deterministic coaching report."""
+    if output is not None and output.resolve() in (replay_a.resolve(), replay_b.resolve()):
+        raise typer.BadParameter("Output must not overwrite an input replay.")
+    try:
+        metrics_a = calculate_metrics(extract_timeline(parse_replay(replay_a), player))
+        metrics_b = calculate_metrics(
+            extract_timeline(parse_replay(replay_b), player_b if player_b is not None else player)
+        )
+        diff = compare_metrics(
+            metrics_a,
+            metrics_b,
+            significance_threshold_ms=threshold_seconds * 1000,
+        )
+        result = RuleBasedCoachProvider().explain(diff)
+        encoded = result.model_dump_json(indent=2)
+        if output is None:
+            typer.echo(encoded)
+        else:
+            output.write_text(encoded + "\n", encoding="utf-8")
+            typer.echo(f"{diff.status}: {output}", err=True)
+    except (OSError, ValueError) as exc:
+        typer.echo(f"Coach error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+    if diff.status != "ok":
         raise typer.Exit(1)
 
 

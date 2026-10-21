@@ -4,8 +4,9 @@ AoE2 replay 分析工具。V1 規劃為 Python CLI：解析 replay、時間線�
 
 ## 目前狀態
 
-M0 開發環境、M1-prep 解析驗證、M1 normalized parser 與 M1.1 timeline 已建置。
-另提供 replay collector 與 M1.2 初版 command metrics；比較與 AI 功能尚未實作。
+M0 開發環境、M1-prep 解析驗證、M1 normalized parser、M1.1 timeline、M1.2 metrics
+與 M1.3 structured diff 已建置。另提供 replay collector，以及 M1.4 的 provider-neutral、
+evidence-grounded coaching contract 與離線 rule-based baseline；外部 LLM provider 尚未實作。
 完整設計見 [PLAN.MD](PLAN.MD)。
 
 ## macOS 快速開始
@@ -71,6 +72,17 @@ uv run --locked aoe2coach collect 156900198 2858362
 可用 `-d` 指定其他目錄。官方不保證每場 replay 都存在，舊檔也可能已被清除；下載失敗
 不會建立 manifest 項目。Replay 與本機 manifest 均由 `.gitignore` 排除。
 
+### Replay Corpus 相容性稽核
+
+```sh
+cd backend
+uv run --locked aoe2coach audit ../replays -o ../replays/audit.json
+```
+
+`audit` 會依檔名穩定排序並統計 `ok / partial / failed`、實際使用的 parser、遊戲版本、
+event 數量、未知事件與可歸屬玩家的事件數。子目錄資料集可加 `--recursive`。只要有
+partial 或 failed，報告仍會寫出，但 CLI 回傳非零 exit code，適合用於 compatibility gate。
+
 ## 開發指令
 
 - `make install`：依 lockfile 安裝依賴與開發工具。
@@ -96,7 +108,8 @@ entity_id 保留 parser 提供的原始 ID；entity_name 使用 Replay 對應的
 
 `status=ok` 退出碼 0；`partial` 或 `failed` 退出碼 1，仍輸出可用資料與錯誤。
 `ok` 不代表比賽已結束或每個指令都已驗證。CHAT 保留原始 payload，不推測發話者。
-目前唯一 adapter 是 mgz；未實作備援 parser 或相容版本白名單，版本資訊由解析 header 取得。
+預設先使用 mgz；若解析狀態為 failed，會改用 aoe2rec-py fallback。尚未建立完整的
+相容版本白名單，版本資訊由 replay header 取得。
 
 三份真實錄影 CLI 驗證結果見 [parse-results.json](docs/parse-results.json)。
 
@@ -124,6 +137,30 @@ uv run --locked aoe2coach metrics ../replays/de-66.6.aoe2record --player 1
 輸出 raw APM、時代研究指令、軍營／馬廄／靶場建造指令與首次排隊指令時間。
 APM 計入已解碼且歸屬該玩家的命令，排除聊天、投降與解碼失敗；它不是 eAPM。
 所有 timing 都是下令時間，不代表建造、生產或研究完成時間。
+
+## 兩場策略比較（M1.3）
+
+```sh
+cd backend
+uv run --locked aoe2coach diff ../replays/a.aoe2record ../replays/b.aoe2record --player 1
+```
+
+預設比較兩場的同一 player ID；可用 `--player-b` 指定第二場玩家，並以
+`--threshold-seconds` 調整 timing 顯著差異門檻。輸出每項 metric delta、最早顯著偏差與
+後續 timing 差異。這些欄位只描述時間順序與相關差異，不宣稱因果關係。任一輸入為
+partial 時仍輸出結果，但狀態為 partial 且 CLI 回傳非零 exit code。
+
+## 證據化教練報告（M1.4 foundation）
+
+```sh
+cd backend
+uv run --locked aoe2coach coach ../replays/a.aoe2record ../replays/b.aoe2record --player 1
+```
+
+目前 provider 為完全離線且 deterministic 的 `rule-based` baseline，不會呼叫外部模型。
+每一項 observation 必須引用與 structured diff 完全相符的 evidence；validator 會拒絕不存在或
+遭竄改的 metric。輸出也會明確標示 `generated_by_model: false`。此 contract 可供後續 LLM
+provider 使用，但不允許模型繞過 grounding validation。
 
 ## 本機網頁 Demo
 
