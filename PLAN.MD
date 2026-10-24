@@ -750,6 +750,9 @@ pytest tests/test_cli.py -v     # End-to-end
 
 ## 後續版本路線
 
+> V2 的完整學習路線、系統設計、壓測方法與驗收標準，見
+> [V2 系統工程與單機容量計畫](docs/V2-SYSTEM-ENGINEERING-PLAN.md)。
+
 ```
 V1.x ─── 本 Plan（Parser + CLI + Metrics + Diff + LLM）
 V2.0 ─── FastAPI Backend + Next.js Frontend + PostgreSQL
