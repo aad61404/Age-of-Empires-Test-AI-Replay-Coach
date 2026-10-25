@@ -21,6 +21,10 @@
 
 ## 核心架構
 
+本計畫的第一個低成本部署 profile 使用「雲端公開服務 + Mac parser worker」。
+服務邊界、資料流、安全限制與逐步 milestone 見
+[Hybrid Cloud Architecture](HYBRID-CLOUD-ARCHITECTURE.md)。
+
 ```text
 Client
   │

@@ -752,6 +752,8 @@ pytest tests/test_cli.py -v     # End-to-end
 
 > V2 的完整學習路線、系統設計、壓測方法與驗收標準，見
 > [V2 系統工程與單機容量計畫](docs/V2-SYSTEM-ENGINEERING-PLAN.md)。
+> 雲端前後端、Mac worker 與實作 milestones，見
+> [Hybrid Cloud Architecture](docs/HYBRID-CLOUD-ARCHITECTURE.md)。
 
 ```
 V1.x ─── 本 Plan（Parser + CLI + Metrics + Diff + LLM）

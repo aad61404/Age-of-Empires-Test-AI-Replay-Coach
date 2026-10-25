@@ -8,6 +8,10 @@ M0 開發環境、M1-prep 解析驗證、M1 normalized parser、M1.1 timeline、
 與 M1.3 structured diff 已建置。另提供 replay collector，以及 M1.4 的 provider-neutral、
 evidence-grounded coaching contract 與離線 rule-based baseline；外部 LLM provider 尚未實作。
 完整設計見 [PLAN.MD](PLAN.MD)。
+V2 的低成本雲端 + Mac worker 架構與實作順序見
+[Hybrid Cloud Architecture](docs/HYBRID-CLOUD-ARCHITECTURE.md)。
+目前 Hetzner 帳號、付款、建機前置狀態與下一位 AI 的接續步驟見
+[Cloud Deployment Handoff](docs/CLOUD-DEPLOYMENT-HANDOFF.md)。
 
 ## macOS 快速開始
 
